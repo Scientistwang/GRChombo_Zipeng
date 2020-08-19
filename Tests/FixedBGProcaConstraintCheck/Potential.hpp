@@ -30,10 +30,10 @@ class Potential
     // functions that specifies m-field distribution
         
     template <class data_t>
-    double m_field(data_t x, double y, double z, double m_0) const
+    data_t m_field(data_t x, double y, double z, double m_0) const
     {   
         //insert some meaningful m field functions here
-        double m = m_0 * ( pow(x,-1.0) + pow(y,-1.0) + pow(z,-1.0) );
+        data_t m = m_0 * ( pow(x,-1.0) + pow(y,-1.0) + pow(z,-1.0) );
         return m;
     }   
 
@@ -167,7 +167,7 @@ class Potential
             D_m_beta += partial_m[i] * metric_vars.shift[i];
         }
 
-	dphidt += -2.0 / m_field(coords.x, coords.y, coords.z, m_params.mass) 
+	dphidt += -2.0 / coords_mass 
 		  * (metric_vars.lapse * DmA + partial_t_m * vars.phi - D_m_beta * vars.phi);
     }
 };
