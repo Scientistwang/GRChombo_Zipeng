@@ -15,6 +15,7 @@
 #include "UserVariables.hpp" //This files needs c_NUM - total number of components
 #include "VarsTools.hpp"
 #include "simd.hpp"
+#include "Coordinates.hpp"
 
 //!  Calculates RHS of matter variables only, gravity vars assumed static
 /*!
@@ -63,13 +64,15 @@ template <class matter_t, class background_t> class FixedBGEvolution
         const auto advec = m_deriv.template advection<MatterVars>(
             current_cell, metric_vars.shift);
 
+	Coordinates<data_t> coords(current_cell, m_dx, m_center);  //
+
         // the RHS
         MatterVars<data_t> matter_rhs;
         VarsTools::assign(matter_rhs, 0.); // All components set to zero
 
         // add evolution of matter fields and dissipation
         m_matter.matter_rhs(matter_rhs, matter_vars, metric_vars, d1, d2,
-                            advec);
+                            advec, coords);
         m_deriv.add_dissipation(matter_rhs, current_cell, m_sigma);
 
         // Write the rhs into the output FArrayBox

@@ -14,7 +14,7 @@ for i in range(N) :
     x[i] = data[i, 0]
     y[i] = data[i*N, 2]
     for j in range(N) :
-        Z1[i,j] = data[i*N + j, 5] # 3 = phi 4 = Ex, 5 = Ax, 6 = constraint
+        Z1[i,j] = data[i*N + j, 3] # 3 = phi 4 = Ex, 5 = Ax, 6 = constraint
         Z2[i,j] = data[i*N + j, 6] # 
 
 X,Y = np.meshgrid(x,y)

@@ -26,7 +26,35 @@ class Potential
     // add alias for metric vars
     template <class data_t>
     using MetricVars = typename ADMFixedBGVars::template Vars<data_t>;
+    //Zipeng edit
+    // functions that specifies m-field distribution
+        
+    template <class data_t>
+    double m_field(data_t x, double y, double z, double m_0) const
+    {   
+        //insert some meaningful m field functions here
+        double m = m_0 * ( pow(x,2.0) + pow(y,2.0) + pow(z,2.0) );
+        return m;
+    }   
 
+    template <class data_t>
+    double compute_partial_t_m (data_t x, double y, double z, double m_0) const
+    {   
+        //necesssary because Tensor only has 3 components?
+        //need to write function that corresponds to the m_field above
+        return 0;
+    }   
+
+    template <class data_t>
+    void compute_partial_m (data_t x, double y, double z, double m_0, 
+                            Tensor<1, data_t> &partial_m) const
+    {   
+        //need to write function that corresponds to the m_field above
+        partial_m[0] = 2 * m_0 * x;
+        partial_m[1] = 2 * m_0 * y;
+        partial_m[2] = 2 * m_0 * z;
+    }
+    
   public:
     //! The constructor
     Potential(params_t a_params) : m_params(a_params) {}
@@ -34,6 +62,7 @@ class Potential
     //! Set the potential function for the proca field here
     template <class data_t, template <typename> class vars_t>
     void compute_potential(data_t &dVdA, data_t &dphidt,
+		    	   Coordinates<data_t> coords, //Zipeng edit
                            const vars_t<data_t> &vars,
                            const vars_t<Tensor<1, data_t>> &d1,
                            const MetricVars<data_t> &metric_vars) const
@@ -109,6 +138,33 @@ class Potential
             dphidt += 8.0 * c4 * vars.phi * metric_vars.lapse / C *
                       (2.0 * vars.Avec[i] * d1.phi[j] * gamma_UU[i][j]);
         }
+
+        //Zipeng Edit
+        //questionable things: metric_vars.shift 
+
+        Tensor<1,data_t> partial_m;
+        compute_partial_m(coords.x, coords.y, coords.z, m_params.mass, partial_m);
+        double partial_t_m = compute_partial_t_m (coords.x, coords.y, coords.z, m_params.mass);
+
+        data_t DmA;
+        // DmA = partial_mu m * A^mu
+        DmA = 0;
+        DmA += partial_t_m * vars.phi;
+        FOR1(i)
+        {
+            DmA += partial_m[i] * vars.Avec[i];
+        }
+
+        data_t D_m_beta;
+        // D_m_beta = partial_i m * beta^i
+        D_m_beta = 0;
+        FOR1(i)
+        {
+            D_m_beta += partial_m[i] * metric_vars.shift[i];
+        }
+
+	dphidt += -2.0 / m_params.mass * (metric_vars.lapse * DmA +
+                       partial_t_m * vars.phi - D_m_beta * vars.phi);
     }
 };
 

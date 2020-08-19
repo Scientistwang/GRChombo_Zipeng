@@ -48,6 +48,7 @@ class FixedBGProcaConstraintTest
     double m_vector_mass;    //!< The local copy of the matter param - the mass
     double m_vector_damping; //!< The local copy of the matter param - the
                              //!< damping param
+    double m_dx;
     const FourthOrderDerivatives m_deriv; //!< The derivates of the fields
     const background_t m_background;      //!< The metric background
 
@@ -61,7 +62,8 @@ class FixedBGProcaConstraintTest
         const vars_t<data_t> &vars, //!< the value of the variables
         const MetricVars<data_t>
             &metric_vars, //!< the value of the metric variables
-        const vars_t<Tensor<1, data_t>> &d1 //!< the value of 1st derivatives
+        const vars_t<Tensor<1, data_t>> &d1, //!< the value of 1st derivatives
+    	const Coordinates<data_t> &coords	
     ) const;
 };
 
