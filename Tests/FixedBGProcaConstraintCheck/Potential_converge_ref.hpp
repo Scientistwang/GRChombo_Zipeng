@@ -28,18 +28,12 @@ class Potential
     using MetricVars = typename ADMFixedBGVars::template Vars<data_t>;
     //Zipeng edit
     // functions that specifies m-field distribution
-       
-    const double mu_H = 0.5, lambda = 0.5, r_plus = 2; 
+        
     template <class data_t>
-    data_t m_field(data_t x, double y, double z, double m_0) const
-    {  
- 
-	data_t r_squared = x*x+y*y+z*z;
-
+    double m_field(data_t x, double y, double z, double m_0) const
+    {   
         //insert some meaningful m field functions here
-        data_t m = mu_H*mu_H*pow(r_plus, lambda)/pow(r_squared,lambda/2)  ;
-	
-	//data_t m = m_0 * ( pow(x,-2.0) + pow(y,-2.0) + pow(z,-2.0) );
+        double m = m_0 * ( pow(x,2.0) + pow(y,2.0) + pow(z,2.0) );
         return m;
     }   
 
@@ -55,13 +49,10 @@ class Potential
     void compute_partial_m (data_t x, double y, double z, double m_0, 
                             Tensor<1, data_t> &partial_m) const
     {   
-	data_t r_squared = x*x+y*y+z*z;
-
-	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/pow(r_squared, 1.0+lambda/2);
-	//need to write function that corresponds to the m_field above
-    	partial_m[0] = temp*x;
-    	partial_m[1] = temp*y;
-    	partial_m[2] = temp*z;
+        //need to write function that corresponds to the m_field above
+        partial_m[0] = 2 * m_0 * x;
+        partial_m[1] = 2 * m_0 * y;
+        partial_m[2] = 2 * m_0 * z;
     }
     
   public:
@@ -84,10 +75,6 @@ class Potential
 
         // for ease of reading
         double c4 = m_params.self_interaction;
-
-	//zipeng-edit
-	//coords dependent mass
-	data_t coords_mass = m_field(coords.x, coords.y, coords.z, m_params.mass);
 
         // Here we are defining often used terms
         // DA[i][j] = D_i A_j
@@ -116,7 +103,7 @@ class Potential
         }
 
         // dVdA = mu^2 ( 1 + 4 c4 (A^k A_k - phi^2))
-        dVdA = pow(coords_mass, 2.0) * (1.0 + 4.0 * c4 * Xsquared);
+        dVdA = pow(m_params.mass, 2.0) * (1.0 + 4.0 * c4 * Xsquared);
 
         // dphidt - for now the whole thing is here since it depends mainly
         // on the form of the potential - except the advection term which is in
@@ -163,9 +150,9 @@ class Potential
         // DmA = partial_mu m * A^mu
         DmA = 0;
         DmA += partial_t_m * vars.phi;
-        FOR2(i,j)
+        FOR1(i)
         {
-            DmA += partial_m[i] * vars.Avec[j] * gamma_UU[i][j]; //Avec is lower indices
+            DmA += partial_m[i] * vars.Avec[i];
         }
 
         data_t D_m_beta;
@@ -173,11 +160,11 @@ class Potential
         D_m_beta = 0;
         FOR1(i)
         {
-            D_m_beta += partial_m[i] * metric_vars.shift[i]; //shift is upper
+            D_m_beta += partial_m[i] * metric_vars.shift[i];
         }
 
-	dphidt += -2.0 / coords_mass 
-		  * (metric_vars.lapse * DmA + partial_t_m * vars.phi - D_m_beta * vars.phi);
+	//dphidt += -2.0 / m_params.mass * (metric_vars.lapse * DmA +
+        //               partial_t_m * vars.phi - D_m_beta * vars.phi);
     }
 };
 

@@ -30,18 +30,15 @@
 template <class potential_t> class FixedBGProcaFieldTest
 {
   protected:
-    double m_vector_mass;    //!< The local copy of the matter param - the mass
-    double m_vector_damping; //!< The local copy of the matter param - the
-                             //!< damping param
-    const potential_t m_potential;
+    double m_vector_damping;       //!< The local copy of the matter param - the
+                                   //!< damping param
+    const potential_t m_potential; //!< The potential params - mass, c4
 
   public:
     //!  Constructor of class FixedBGProcaFieldTest, inputs are the matter
     //!  parameters.
-    FixedBGProcaFieldTest(double a_vector_mass, double a_vector_damping,
-                          const potential_t potential)
-        : m_vector_mass(a_vector_mass), m_vector_damping(a_vector_damping),
-          m_potential(potential)
+    FixedBGProcaFieldTest(const potential_t potential, double a_vector_damping)
+        : m_vector_damping(a_vector_damping), m_potential(potential)
     {
     }
 
@@ -114,7 +111,8 @@ template <class potential_t> class FixedBGProcaFieldTest
             &metric_vars, //!< the value of the metric variables
         const vars_t<Tensor<1, data_t>> &d1, //!< the value of the 1st derivs
         const diff2_vars_t<Tensor<2, data_t>> &d2, //!< the 2nd derivs
-        const vars_t<data_t> &advec) const; //!< the value of beta^i d_i(var).
+        const vars_t<data_t> &advec,
+	const Coordinates<data_t> &coords) const; //!< the value of beta^i d_i(var).
 };
 
 #include "FixedBGProcaFieldTest.impl.hpp"

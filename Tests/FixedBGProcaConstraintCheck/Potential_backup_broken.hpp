@@ -28,17 +28,12 @@ class Potential
     using MetricVars = typename ADMFixedBGVars::template Vars<data_t>;
     //Zipeng edit
     // functions that specifies m-field distribution
-       
-    const double mu_H = 0.5, lambda = 0.5, r_plus = 2; 
+        
     template <class data_t>
     data_t m_field(data_t x, double y, double z, double m_0) const
-    {  
- 
-	data_t r_squared = x*x+y*y+z*z;
-
+    {   
         //insert some meaningful m field functions here
-        data_t m = mu_H*mu_H*pow(r_plus, lambda)/pow(r_squared,lambda/2)  ;
-	
+        data_t m = m_0 * (1 + 0.9* cos(3*x*x) );
 	//data_t m = m_0 * ( pow(x,-2.0) + pow(y,-2.0) + pow(z,-2.0) );
         return m;
     }   
@@ -55,13 +50,13 @@ class Potential
     void compute_partial_m (data_t x, double y, double z, double m_0, 
                             Tensor<1, data_t> &partial_m) const
     {   
-	data_t r_squared = x*x+y*y+z*z;
-
-	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/pow(r_squared, 1.0+lambda/2);
-	//need to write function that corresponds to the m_field above
-    	partial_m[0] = temp*x;
-    	partial_m[1] = temp*y;
-    	partial_m[2] = temp*z;
+        //need to write function that corresponds to the m_field above
+        //partial_m[0] = -2.0 * m_0 * pow(x,-3.0);
+        //partial_m[1] = -2.0 * m_0 * pow(y,-3.0);
+        //partial_m[2] = -2.0 * m_0 * pow(z,-3.0);
+    	partial_m[0] =  -0.9* m_0* sin(3*x*x)*2*3*x;
+    	partial_m[1] = 0;
+    	partial_m[2] = 0;
     }
     
   public:
@@ -163,9 +158,9 @@ class Potential
         // DmA = partial_mu m * A^mu
         DmA = 0;
         DmA += partial_t_m * vars.phi;
-        FOR2(i,j)
+        FOR1(i)
         {
-            DmA += partial_m[i] * vars.Avec[j] * gamma_UU[i][j]; //Avec is lower indices
+            DmA += partial_m[i] * vars.Avec[i];
         }
 
         data_t D_m_beta;
@@ -173,7 +168,7 @@ class Potential
         D_m_beta = 0;
         FOR1(i)
         {
-            D_m_beta += partial_m[i] * metric_vars.shift[i]; //shift is upper
+            D_m_beta += partial_m[i] * metric_vars.shift[i];
         }
 
 	dphidt += -2.0 / coords_mass 

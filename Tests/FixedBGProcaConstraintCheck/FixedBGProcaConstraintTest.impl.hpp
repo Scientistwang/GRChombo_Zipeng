@@ -18,7 +18,7 @@
                                    double a_vector_damping,
                                    const potential_t potential)
     : m_background(a_background), m_deriv(dx), m_vector_mass(a_vector_mass),
-      m_vector_damping(a_vector_damping), m_potential(potential)
+      m_vector_damping(a_vector_damping), m_potential(potential), m_dx(dx)
 {
 }
 
@@ -33,7 +33,10 @@ void FixedBGProcaConstraintTest<potential_t, background_t>::compute(
     const auto vars = current_cell.template load_vars<MatterVars>();
     const auto d1 = m_deriv.template diff1<MatterVars>(current_cell);
 
-    data_t gauss_constraint = constraint_equations(vars, metric_vars, d1);
+    std::array<double, 3> center = {6.0,6.0,6.0}; //center
+    Coordinates<data_t> coords(current_cell, m_dx, center);
+
+    data_t gauss_constraint = constraint_equations(vars, metric_vars, d1, coords);
 
     // write the gauss constraint onto the grid at this gridpoint
     current_cell.store_vars(gauss_constraint, c_gauss);
@@ -44,7 +47,7 @@ template <class data_t, template <typename> class vars_t>
 data_t
 FixedBGProcaConstraintTest<potential_t, background_t>::constraint_equations(
     const vars_t<data_t> &vars, const MetricVars<data_t> &metric_vars,
-    const vars_t<Tensor<1, data_t>> &d1) const
+    const vars_t<Tensor<1, data_t>> &d1, const Coordinates<data_t> &coords) const
 {
     // calculate full spatial christoffel symbols
     using namespace TensorAlgebra;
@@ -57,7 +60,7 @@ FixedBGProcaConstraintTest<potential_t, background_t>::constraint_equations(
     // compute potential
     data_t dVdA = 0;
     data_t dphidt = 0;
-    m_potential.compute_potential(dVdA, dphidt, vars, d1, metric_vars);
+    m_potential.compute_potential(dVdA, dphidt, coords, vars, d1, metric_vars);
 
     // this is the second part of eqn 27
     // ie dVdA = mu^2 ( 1 + 4 c4 A^k A_k - 12 c4 phi^2)
