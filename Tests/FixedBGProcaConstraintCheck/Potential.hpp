@@ -62,7 +62,7 @@ class Potential
     	partial_m[0] = temp*x;
     	partial_m[1] = temp*y;
     	partial_m[2] = temp*z;
-    }
+   }
     
   public:
     //! The constructor

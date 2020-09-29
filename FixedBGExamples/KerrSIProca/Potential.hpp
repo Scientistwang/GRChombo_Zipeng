@@ -37,7 +37,7 @@ class Potential
 	data_t r_squared = x*x+y*y+z*z;
 
         //insert some meaningful m field functions here
-        data_t m = m_0; //mu_H*mu_H*pow(r_plus, lambda)/pow(r_squared,lambda/2)  ;
+        data_t m = mu_H*mu_H*pow(r_plus, lambda)/pow(r_squared,lambda/2)  ;
 	
 	//data_t m = m_0 * ( pow(x,-2.0) + pow(y,-2.0) + pow(z,-2.0) );
         return m;
@@ -59,10 +59,10 @@ class Potential
 
 	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/pow(r_squared, 1.0+lambda/2);
 	//need to write function that corresponds to the m_field above
-    	partial_m[0] = 0;//temp*x;
-    	partial_m[1] = 0;//temp*y;
-    	partial_m[2] = 0;//temp*z;
-    }
+    	partial_m[0] = temp*x;
+    	partial_m[1] = temp*y;
+    	partial_m[2] = temp*z;
+   }
     
   public:
     //! The constructor
