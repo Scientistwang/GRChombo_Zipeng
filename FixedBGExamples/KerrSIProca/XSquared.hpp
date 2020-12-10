@@ -10,19 +10,20 @@
 #include "Cell.hpp"
 #include "Coordinates.hpp"
 #include "FixedBGProcaFieldTest.hpp"
-#include "KerrSchildFixedBG.hpp"
+#include "IsotropicKerrFixedBG.hpp"
 #include "Potential.hpp"
 #include "Tensor.hpp"
 #include "UserVariables.hpp" //This files needs NUM_VARS - total no. components
 #include "VarsTools.hpp"
 #include "simd.hpp"
+#include "IsotropicKerrFixedBG.hpp"
 
 //! Class which creates the initial conditions
 class XSquared
 {
   protected:
     const Potential::params_t m_potential_params;
-    const KerrSchildFixedBG::params_t m_bg_params;
+    const IsotropicKerrFixedBG::params_t m_bg_params;
     const double m_dx;
     const std::array<double, CH_SPACEDIM> m_center;
 
@@ -36,7 +37,7 @@ class XSquared
   public:
     //! The constructor for the class
     XSquared(const Potential::params_t a_potential_params,
-             const KerrSchildFixedBG::params_t a_bg_params,
+             const IsotropicKerrFixedBG::params_t a_bg_params,
              const std::array<double, CH_SPACEDIM> a_center, const double a_dx)
         : m_dx(a_dx), m_center(a_center),
           m_potential_params(a_potential_params), m_bg_params(a_bg_params)
@@ -50,7 +51,7 @@ class XSquared
         Coordinates<data_t> coords(current_cell, m_dx, m_center);
 
         // get the metric vars
-        KerrSchildFixedBG kerr_bh(m_bg_params, m_dx);
+        IsotropicKerrFixedBG kerr_bh(m_bg_params, m_dx);
         MetricVars<data_t> metric_vars;
         kerr_bh.compute_metric_background(metric_vars, current_cell);
         using namespace TensorAlgebra;
