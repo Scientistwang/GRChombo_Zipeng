@@ -28,6 +28,7 @@
 #include "KerrSchildFixedBG.hpp"
 #include "Potential.hpp"
 #include "XSquared.hpp"
+#include "violation.hpp"
 //#include "ProcaConstraint.hpp"
 
 // Things to do at each advance step, after the RK4 is calculated
@@ -153,7 +154,10 @@ void ProcaFieldLevel::prePlotLevel() {
             m_p.extraction_params.zaxis_over_xaxis);
         XSquared set_xsquared(m_p.potential_params, m_p.bg_params, m_p.center,
                               m_dx);
-        BoxLoops::loop(make_compute_pack(densities, fluxes, set_xsquared),
+	violation set_violation(m_p.potential_params, m_p.bg_params, m_p.center,
+                              m_dx);
+
+        BoxLoops::loop(make_compute_pack(densities, fluxes, set_xsquared,set_violation),
                        m_state_new, m_state_diagnostics, SKIP_GHOST_CELLS);
         BoxLoops::loop(ExcisionProcaDiagnostics<ProcaField, IsotropicKerrFixedBG>(
                            m_dx, m_p.center, kerr_bh, 1.0),

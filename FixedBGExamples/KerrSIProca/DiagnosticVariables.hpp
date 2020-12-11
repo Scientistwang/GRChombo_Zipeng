@@ -15,14 +15,15 @@ enum
     c_Edot,
     c_Jdot,
     c_Xsquared,
-
+    c_violation,
+ 
     NUM_DIAGNOSTIC_VARS
 };
 
 namespace DiagnosticVariables
 {
 static const std::array<std::string, NUM_DIAGNOSTIC_VARS> variable_names = {
-    "chi", "rho", "rhoJ", "Edot", "Jdot", "Xsquared"};
+    "chi", "rho", "rhoJ", "Edot", "Jdot", "Xsquared","violation"};
 }
 
 #endif /* DIAGNOSTICVARIABLES_HPP */

@@ -29,17 +29,17 @@ class Potential
     //Zipeng edit
     // functions that specifies m-field distribution
        
-    const double mu_H = 0.5, lambda = 0.5, r_plus = 2; 
+    //const double mu_H = 0.42, lambda = 0.5, r_plus = 2;  //This is for Field_I, sqaured term
+    const double mu_H = 0, lambda = 0, r_plus = 2, mu_c = 0.4;
     template <class data_t>
-    data_t m_field(data_t x, double y, double z, double m_0) const
+    data_t m_field(data_t x, double y, double z, double m_0=0) const
     {  
  
 	data_t r_squared = x*x+y*y+z*z;
-
+	data_t r = pow(r_squared, 0.5);
         //insert some meaningful m field functions here
-        data_t m = mu_H*mu_H*pow(r_plus, lambda)/pow(r_squared,lambda/2)  ;
+        data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r,lambda)+mu_c*mu_c, 0.5);
 	
-	//data_t m = m_0 * ( pow(x,-2.0) + pow(y,-2.0) + pow(z,-2.0) );
         return m;
     }   
 
@@ -56,8 +56,12 @@ class Potential
                             Tensor<1, data_t> &partial_m) const
     {   
 	data_t r_squared = x*x+y*y+z*z;
+	data_t r = pow(r_squared, 0.5);
+	
+	data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r,lambda)+mu_c*mu_c, 0.5);
 
-	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/pow(r_squared, 1.0+lambda/2);
+	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/(2 * m * pow(r, lambda+2));
+
 	//need to write function that corresponds to the m_field above
     	partial_m[0] = temp*x;
     	partial_m[1] = temp*y;
