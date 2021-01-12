@@ -21,7 +21,8 @@ class Potential
     };
 
     // class params
-    params_t m_params;
+    const params_t m_params;
+    const IsotropicKerrFixedBG::params_t m_bg_params;
 
     // add alias for metric vars
     template <class data_t>
@@ -30,21 +31,22 @@ class Potential
     // functions that specifies m-field distribution
        
     //const double mu_H = 0.42, lambda = 0.5, r_plus = 2;  //This is for Field_I, sqaured term
-    const double mu_H = 0, lambda = 0, r_plus = 2, mu_c = 0.4;
+    const double mu_H = 1, lambda = 1, mu_c = 0.1;
     template <class data_t>
-    data_t m_field(data_t x, double y, double z, double m_0=0) const
+    data_t m_field(data_t x, double y, double z, double r_plus, double m_0=0) const
     {  
- 
-	data_t r_squared = x*x+y*y+z*z;
-	data_t r = pow(r_squared, 0.5);
+
+	data_t R_squared = x*x+y*y+z*z;
+	data_t R = pow(R_squared, 0.5);
+	data_t r_BL = R* pow(1+r_plus/(4*R),2);
         //insert some meaningful m field functions here
-        data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r,lambda)+mu_c*mu_c, 0.5);
+        data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r_BL,lambda)+mu_c*mu_c, 0.5);
 	
         return m;
     }   
 
     template <class data_t>
-    double compute_partial_t_m (data_t x, double y, double z, double m_0) const
+    double compute_partial_t_m (data_t x, double y, double z, double m_0, double r_plus) const
     {   
         //necesssary because Tensor only has 3 components?
         //need to write function that corresponds to the m_field above
@@ -53,14 +55,16 @@ class Potential
 
     template <class data_t>
     void compute_partial_m (data_t x, double y, double z, double m_0, 
-                            Tensor<1, data_t> &partial_m) const
+                            Tensor<1, data_t> &partial_m, double r_plus) const
     {   
-	data_t r_squared = x*x+y*y+z*z;
-	data_t r = pow(r_squared, 0.5);
-	
-	data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r,lambda)+mu_c*mu_c, 0.5);
+	data_t R_squared = x*x+y*y+z*z;
+	data_t R = pow(R_squared, 0.5);
+	data_t r_BL = R* pow(1+r_plus/(4*R),2);
+        data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r_BL,lambda)+mu_c*mu_c, 0.5);
 
-	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/(2 * m * pow(r, lambda+2));
+	data_t temp = -lambda * (-r_plus+4*R) / ( 2*R*R* (r_plus+4*R) ); 
+	temp = temp * mu_H*mu_H*pow(r_plus, lambda)/pow(r_BL,lambda); // This is just mu_0^2 
+	temp = temp / m; 
 
 	//need to write function that corresponds to the m_field above
     	partial_m[0] = temp*x;
@@ -70,7 +74,9 @@ class Potential
     
   public:
     //! The constructor
-    Potential(params_t a_params) : m_params(a_params) {}
+    Potential(params_t a_params, 
+	      IsotropicKerrFixedBG::params_t a_bg_params) : 
+	    m_params(a_params), m_bg_params(a_bg_params)  {}
 
     //! Set the potential function for the proca field here
     template <class data_t, template <typename> class vars_t>
@@ -90,8 +96,13 @@ class Potential
         double c4 = m_params.self_interaction;
 
 	//zipeng-edit
+	//calculate r_plus values
+	
+	double r_plus = m_bg_params.mass + pow( m_bg_params.mass * m_bg_params.mass - 
+			m_bg_params.spin * m_bg_params.spin, 0.5);
+	//pout() << "r plus value" << r_plus;
 	//coords dependent mass
-	data_t coords_mass = m_field(coords.x, coords.y, coords.z, m_params.mass);
+	data_t coords_mass = m_field(coords.x, coords.y, coords.z, r_plus, m_params.mass);
 
         // Here we are defining often used terms
         // DA[i][j] = D_i A_j
@@ -160,8 +171,8 @@ class Potential
         //questionable things: metric_vars.shift 
 
         Tensor<1,data_t> partial_m;
-        compute_partial_m(coords.x, coords.y, coords.z, m_params.mass, partial_m);
-        double partial_t_m = compute_partial_t_m (coords.x, coords.y, coords.z, m_params.mass);
+        compute_partial_m(coords.x, coords.y, coords.z, m_params.mass, partial_m, r_plus);
+        double partial_t_m = compute_partial_t_m (coords.x, coords.y, coords.z, m_params.mass, r_plus);
 
         data_t DmA;
         // DmA = partial_mu m * A^mu

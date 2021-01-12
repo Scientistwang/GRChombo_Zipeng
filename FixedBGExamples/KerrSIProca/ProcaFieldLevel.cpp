@@ -144,7 +144,7 @@ void ProcaFieldLevel::prePlotLevel() {
 
         // calculate the density of the PF, but excise the BH region completely
         fillAllGhosts();
-        Potential potential(m_p.potential_params);
+        Potential potential(m_p.potential_params, m_p.bg_params);
         ProcaField proca_field(potential, m_p.proca_damping);
         IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
         FixedBGDensityAndAngularMom<ProcaField, IsotropicKerrFixedBG> densities(
@@ -172,7 +172,7 @@ void ProcaFieldLevel::specificEvalRHS(GRLevelData &a_soln, GRLevelData &a_rhs,
                                       const double a_time)
 {
     // Calculate MatterCCZ4 right hand side with matter_t = ProcaField
-    Potential potential(m_p.potential_params);
+    Potential potential(m_p.potential_params, m_p.bg_params);
     ProcaField proca_field(potential, m_p.proca_damping);
     IsotropicKerrFixedBG kerr_bh(m_p.bg_params, m_dx);
     FixedBGEvolution<ProcaField, IsotropicKerrFixedBG> my_matter(

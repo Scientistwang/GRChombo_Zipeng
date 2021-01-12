@@ -71,8 +71,13 @@ class violation
         // Xsquared = X^/mu X_/mu
         data_t violation;
 
-	Potential massive_photon(m_potential_params);
-        violation = metric_vars.lapse * (pow( massive_photon.m_field(coords.x,coords.y,coords.z),
+	Potential massive_photon(m_potential_params, m_bg_params );
+	
+	//calculate r_plus values
+	double r_plus = m_bg_params.mass + pow( m_bg_params.mass * m_bg_params.mass - 
+			m_bg_params.spin * m_bg_params.spin, 0.5);
+
+        violation = metric_vars.lapse * (pow( massive_photon.m_field(coords.x,coords.y,coords.z,r_plus),
 			       	2.0) * vars.phi);
 
 	FOR1(i)
