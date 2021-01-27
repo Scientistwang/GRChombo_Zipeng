@@ -31,7 +31,7 @@ class Potential
     // functions that specifies m-field distribution
        
     //const double mu_H = 0.42, lambda = 0.5, r_plus = 2;  //This is for Field_I, sqaured term
-    const double mu_H = 1, lambda = 1, mu_c = 0.1;
+    const double mu_H = 0.5, lambda = 2.5, mu_c = 0.42;
     template <class data_t>
     data_t m_field(data_t x, double y, double z, double r_plus, double m_0=0) const
     {  
@@ -59,7 +59,7 @@ class Potential
     {   
 	data_t R_squared = x*x+y*y+z*z;
 	data_t R = pow(R_squared, 0.5);
-	data_t r_BL = R* pow(1+r_plus/(4*R),2);
+	data_t r_BL = R* pow(1+(r_plus/(4*R)),2);
         data_t m = pow( mu_H*mu_H*pow(r_plus, lambda)/pow(r_BL,lambda)+mu_c*mu_c, 0.5);
 
 	data_t temp = -lambda * (-r_plus+4*R) / ( 2*R*R* (r_plus+4*R) ); 
