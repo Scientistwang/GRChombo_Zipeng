@@ -53,7 +53,7 @@ int main()
     const double center = length / 2.0;
     const std::array<double, CH_SPACEDIM> center_vector = {center, center,
                                                            center};
-    const double dt_multiplier = 0.2;
+    const double dt_multiplier = 0.01;
     // setup a vector of norms for checking convergence
     std::array<double, num_resolutions> error_norms;
     error_norms.fill(0.0);

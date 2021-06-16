@@ -20,8 +20,8 @@ for i in range(N) :
 X,Y = np.meshgrid(x,y)
 #plt.contourf(X,Y,Z1)
 
-plt.imshow(Z1, extent=[0, N, 0, N], origin='lower',
-           cmap='RdGy', interpolation='nearest') #, vmin=0, vmax=1.0)
+plt.imshow(np.log10(np.abs(Z1)), extent=[0, N, 0, N], origin='lower',
+           cmap='RdGy', interpolation='nearest' )#, vmin=0, vmax=10)
 ax = plt.gca();
 ax.set_xticks(np.arange(0, N, 4));
 ax.set_yticks(np.arange(0, N, 4));
@@ -34,8 +34,8 @@ plt.savefig("output_fig1.png")
 plt.clf()
 
 #plt.contourf(X,Y,Z2)
-plt.imshow(Z2, extent=[0, N, 0, N], origin='lower',
-           cmap='RdGy', interpolation='nearest', vmin=0, vmax=1e25)
+plt.imshow(np.log10(np.abs(Z2)), extent=[0, N, 0, N], origin='lower',
+           cmap='RdGy', interpolation='nearest') #vmin=0, vmax=10)
 plt.colorbar()
 ax = plt.gca();
 ax.set_xticks(np.arange(0, N, 4));

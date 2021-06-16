@@ -29,16 +29,16 @@ class Potential
     //Zipeng edit
     // functions that specifies m-field distribution
        
-    const double mu_H = 0.5, lambda = 0.5, r_plus = 2; 
+    const double mu_H = 0.5, lambda = 0.5, r_plus = 2, r_0 = 2, mu_c = 0.4, k = 7; 
     template <class data_t>
     data_t m_field(data_t x, double y, double z, double m_0) const
     {  
  
-	data_t r_squared = x*x+y*y+z*z;
-
+	data_t R_squared = x*x+y*y+z*z;
+	data_t R = sqrt(R_squared); 
+	data_t euler = M_E;
         //insert some meaningful m field functions here
-        data_t m = mu_H*mu_H*pow(r_plus, lambda)/pow(r_squared,lambda/2)  ;
-	
+        data_t m = sqrt((pow(r_0/(R*pow(1 + r_plus/(4.*R),2)),lambda)*pow(mu_H,2))/(1 + pow(euler,-(k*(-r_0 + R*pow(1 + r_plus/(4.*R),2)))/r_0)));	
 	//data_t m = m_0 * ( pow(x,-2.0) + pow(y,-2.0) + pow(z,-2.0) );
         return m;
     }   
@@ -55,9 +55,11 @@ class Potential
     void compute_partial_m (data_t x, double y, double z, double m_0, 
                             Tensor<1, data_t> &partial_m) const
     {   
-	data_t r_squared = x*x+y*y+z*z;
+	data_t R_squared = x*x+y*y+z*z;
+	data_t R = sqrt(R_squared); 
+	data_t euler = M_E;
 
-	data_t temp=-mu_H*mu_H*pow(r_plus,lambda)*lambda/pow(r_squared, 1.0+lambda/2);
+	data_t temp=(pow(2,-5 + 4*lambda)*pow(euler,(k*(-r_0 + R*pow(1 + r_plus/(4.*R),2)))/r_0)*pow((r_0*R)/pow(r_plus + 4*R,2),-1 + lambda)*(k*(r_plus + 4*R)*(-pow(r_plus,2) + 16*(R_squared)) - 16*(1 + pow(euler,(k*(-r_0 + R*pow(1 + r_plus/(4.*R),2)))/r_0))*r_0*(4*pow(x,2) + 4*(pow(y,2) + pow(z,2)) - r_plus*R)*lambda)*pow(mu_H,2))/(pow(1 + pow(euler,(k*(-r_0 + R*pow(1 + r_plus/(4.*R),2)))/r_0),2)*(R_squared)*pow(r_plus + 4*R,3)*sqrt((pow(16,lambda)*pow((r_0*R)/pow(r_plus + 4*R,2),lambda)*pow(mu_H,2))/(1 + pow(euler,-(k*(-r_0 + R*pow(1 + r_plus/(4.*R),2)))/r_0))));
 	//need to write function that corresponds to the m_field above
     	partial_m[0] = temp*x;
     	partial_m[1] = temp*y;
